@@ -170,7 +170,7 @@ rule get_geno_PCs:
 #     group: "get_cov"
 #     input: 
 #         genoPCs = "results/{trait}/{trait}_final_geno_PCA.eigenvec",
-#         THGPcov = config["metadata"]
+#         metadat = config["metadata"]
 #     output:
 #         fullCov = "results/{trait}/{trait}_GEMMA_cov_W.tsv"
 #     params:
@@ -185,7 +185,7 @@ rule get_final_cov:
     input: 
         genoPCs = "results/final_geno_PCA.eigenvec",
         genoIDs = "results/final_geno.fam",
-        THGPcov = config["metadata"]
+        metadat = config["metadata"]
     output:
         fullCov = "results/final_GEMMA_cov_W.tsv"
     params:
