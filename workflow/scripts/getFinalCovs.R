@@ -11,8 +11,8 @@ genoPCs <- read.table( snakemake@input[["genoPCs"]], sep = " ", header = F) %>% 
 IDs <- read.table( snakemake@input[["genoIDs"]], sep = " ", header = F)
 
 # read in the THGP metadata with the remaining covariates
-# THGPmeta <- read.table( snakemake@input[["THGPcov"]], sep = "\t", header = T) %>% filter( Unique.ID %in% genoPCs$V1) %>% arrange( match( Unique.ID, genoPCs$V1))
-THGPmeta <- read.table( snakemake@input[["THGPcov"]], sep = "\t", header = T) %>% filter( Unique.ID %in% genoPCs$V1) 
+# THGPmeta <- read.table( snakemake@input[["metadat"]], sep = "\t", header = T) %>% filter( Unique.ID %in% genoPCs$V1) %>% arrange( match( Unique.ID, genoPCs$V1))
+THGPmeta <- read.table( snakemake@input[["metadat"]], sep = "\t", header = T) %>% filter( Unique.ID %in% genoPCs$V1) 
 
 genoPCs <- genoPCs[ , c( ncol( genoPCs), 3:finalCol)]
 
