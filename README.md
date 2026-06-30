@@ -53,7 +53,7 @@ Tab-delimited matrix of normalized trait values with **traits in rows** and **sa
 
 > **Minimum sample size:** Each trait must have at least **500 non-NA values** among the genotyped samples. Traits below this threshold are skipped automatically and a `results/{trait}/{trait}_SKIPPED.log` file is written explaining why (see `workflow/scripts/orderTrait_byGeno.R`).
 
-### 3. Covariate / metadata file (`THGPmetadata`)
+### 3. Covariate / metadata file (`metadata`)
 
 Tab-delimited file of covariates to include in the model:
 
@@ -72,7 +72,7 @@ Edit `config/config.yaml` to set your paths and parameters:
 ##############################
 inputBfile:   ""   # path + PLINK prefix (bfile) to genotype files (no .bed/.bim/.fam)
 traitData:    ""   # path to normalized trait matrix (traits in rows, samples in columns)
-THGPmetadata: ""   # path to covariate/metadata file (Unique.ID + covariate columns)
+metadata: ""   # path to covariate/metadata file (Unique.ID + covariate columns)
 GENO_PCnum:   5    # number of genotype PCs to include as covariates
 
 ##############################
