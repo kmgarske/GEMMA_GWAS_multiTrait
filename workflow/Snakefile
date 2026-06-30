@@ -5,7 +5,7 @@ import pandas as pd
 from functools import lru_cache
 from pathlib import Path
 
-configfile: "/Genomics/ayroleslab2/kristina/GEMMA_GWAS/config/config.yaml"
+configfile: "path/to/config.yaml"
 
 trait_matrix_path = config["traitData"]
 traits = pd.read_csv(trait_matrix_path, sep="\t", index_col=0).index.tolist()
