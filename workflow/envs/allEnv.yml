@@ -1,0 +1,19 @@
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - snakemake=9.6.0
+  - pip
+  - pip:
+      - snakemake-executor-plugin-slurm
+  - r-base=4.3.3
+  - r-tidyverse=2.0.0
+  - plink=1.90b6.21
+  - bcftools=1.20
+  - gatk4=4.5.0.0
+  - gemma=0.98.3
+  - bedtools=2.31.1
+  - pandas=2.1.4
+  - gzip=1.13
+  - bash=5.2.21

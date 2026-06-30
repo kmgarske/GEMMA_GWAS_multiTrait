@@ -1,0 +1,50 @@
+executor: slurm
+use-conda: true
+jobs: 1000
+latency-wait: 100
+retries: 2
+
+default-resources:
+  - mem_mb=4000
+  - mem_mb_per_cpu=4000
+  - runtime=30
+  - threads=1
+
+set-resources:
+  get_geno_trait_overlap:
+    mem_mb: 1000
+    runtime: 5
+  plink_filter_overlap:
+    mem_mb: 64000
+    mem_mb_per_cpu: 64000
+  order_traits:
+    mem_mb: 2000
+    runtime: 10
+  get_LOCO_GRMs:
+    mem_mb: 8000
+    mem_mb_per_cpu: 0
+    runtime: 1440
+  get_geno_PCs:
+    mem_mb: 8000
+    mem_mb_per_cpu: 0
+  get_final_cov:
+    mem_mb: 2000
+    mem_mb_per_cpu: 0
+    runtime: 10
+  get_SNP_lists:
+    mem_mb: 1000
+    mem_mb_per_cpu: 0
+    runtime: 5
+  get_GEMMA_files:
+    mem_mb: 1000
+    mem_mb_per_cpu: 0
+    runtime: 5
+  run_ME:
+    mem_mb: 8000
+    mem_mb_per_cpu: 0
+    runtime: 240
+
+group-components:
+  - get_PCs=8
+  - get_cov=24
+  - get_plink=24

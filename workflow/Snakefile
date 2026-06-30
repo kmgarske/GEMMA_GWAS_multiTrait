@@ -1,0 +1,61 @@
+from snakemake.utils import min_version
+min_version("8.0")
+
+import pandas as pd
+from functools import lru_cache
+from pathlib import Path
+
+configfile: "/Genomics/ayroleslab2/kristina/GEMMA_GWAS/config/config.yaml"
+
+trait_matrix_path = config["traitData"]
+traits = pd.read_csv(trait_matrix_path, sep="\t", index_col=0).index.tolist()
+chromosomes = [str(c) for c in range(1,23)]
+
+rule all:
+    input:
+        expand("results/{trait}/{trait}_chr{chromosome}_LMM.assoc.txt", trait = traits, chromosome = chromosomes)
+include: "rules/getAnalysisFiles.smk"
+include: "rules/GEMMA_analysis.smk"
+
+# checkpoint get_trait_file:
+#     input:
+#         traitData = config["traitData"]
+#     output:
+#         traitFile = "results/{trait}/{trait}_data.tsv"
+#     conda:
+#         "envs/allEnv.yml"
+#     shell:
+#         r"""
+#         mkdir -p results/{wildcards.trait}
+#         : > {output.traitFile}
+
+#         sed -n '1p' {input.traitData} | tr "\t" "\n" > results/{wildcards.trait}/er1
+#         echo -e 'Unique.ID' | cat - results/{wildcards.trait}/er1 > results/{wildcards.trait}/er2
+
+#         grep -w {wildcards.trait} {input.traitData} | \
+#         tr "\t" "\n" | \
+#         paste results/{wildcards.trait}/er2 - | \
+#         awk '$2 != "NA"' | awk '$2 != ""' > {output.traitFile}
+#         rm results/{wildcards.trait}/er1 results/{wildcards.trait}/er2
+#         """
+
+checkpoint get_trait_file:
+    input:
+        traitData = config["traitData"]
+    output:
+        traitFile = "results/{trait}/{trait}_data.tsv"
+    conda:
+        "envs/allEnv.yml"
+    shell:
+        r"""
+        mkdir -p results/{wildcards.trait}
+        : > {output.traitFile}
+
+        sed -n '1p' {input.traitData} | tr "\t" "\n" > results/{wildcards.trait}/er1
+        echo -e 'Unique.ID' | cat - results/{wildcards.trait}/er1 > results/{wildcards.trait}/er2
+
+        grep -w {wildcards.trait} {input.traitData} | \
+        tr "\t" "\n" | \
+        paste results/{wildcards.trait}/er2 - > {output.traitFile}
+        rm results/{wildcards.trait}/er1 results/{wildcards.trait}/er2
+        """
