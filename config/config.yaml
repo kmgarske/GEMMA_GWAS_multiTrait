@@ -4,13 +4,14 @@
 
 inputBfile: "" # path and plink prefix (bfile) to genotype files
 traitData: "" # path to normalized trait data (see README for format)
-THGPmetadata: "" # path to THGP metadata containing covariates you want to include in the GWAS model (see README for format)
-GENO_PCnum: 5 # number of genotype PCs you want to include as covariates in the analysis
-
+metadata: "" # path to metadata containing covariates you want to include in the GWAS model (see README for format)
 
 ##############################
 # Variables you *might* need to change
 ##############################
+
+# number of genotype PCs you want to include as covariates in the analysis
+GENO_PCnum: 5 
 
 # plink filtering parameters for final genotype files
 MAF: 0.05 # the minor allele frequency threshold for your analysis
