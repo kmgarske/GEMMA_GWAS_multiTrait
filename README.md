@@ -35,5 +35,4 @@ column 3 values: value for <covariate2>
 
 ## Citation
 
-If you use this pipeline, please cite:
-- Zhou X, Stephens M. Genome-wide efficient mixed-model analysis for association studies. *Nature Genetics*. 2012;44(7):821-824.
+If you use this pipeline, please see the [original GEMMA software Github repo](https://github.com/genetics-statistics/GEMMA) for citation information.
