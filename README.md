@@ -32,3 +32,8 @@ column 3 name: <covariate2Name> e.g., "Sex" - can be anything
 column 3 values: value for <covariate2>
 
 ...and so on for all covariates you want to include in your model. genotype PCs will also be included (see config/config.yaml file)
+
+## Citation
+
+If you use this pipeline, please cite:
+- Zhou X, Stephens M. Genome-wide efficient mixed-model analysis for association studies. *Nature Genetics*. 2012;44(7):821-824.
