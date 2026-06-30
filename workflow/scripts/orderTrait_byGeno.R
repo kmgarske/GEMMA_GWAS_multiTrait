@@ -6,7 +6,6 @@ library(tidyverse)
 geno <- read.table( snakemake@input[["genoIDs"]], sep = " ", header = F)
 
 # read in the gene expression data
-# trait <- read.table( snakemake@input[["traitData"]], sep = "\t", header = T, check.names = F) %>% filter( Unique.ID %in% geno$V1) %>% arrange( match( Unique.ID, geno$V1))
 trait <- read.table( snakemake@input[["traitData"]], sep = "\t", header = T, check.names = F) %>% filter( Unique.ID %in% geno$V1)
 
 finalDF <- data.frame( Unique.ID = geno$V1) %>% left_join( trait, by = "Unique.ID") %>% arrange( match( Unique.ID, geno$V1))
@@ -30,5 +29,4 @@ if ( nNonNA < minSamples) {
 }
 
 # save everything
-# write.table( trait %>% select( 2), snakemake@output[["finalDat"]], sep = "\t", quote = F, col.names = F, row.names = F)
 write.table( finalDF %>% select( 2), snakemake@output[["finalDat"]], sep = "\t", quote = F, col.names = F, row.names = F)
