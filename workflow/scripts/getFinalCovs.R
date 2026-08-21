@@ -13,7 +13,7 @@ IDs <- read.table( snakemake@input[["genoIDs"]], sep = " ", header = F)
 # read in the THGP metadata with the remaining covariates
 THGPmeta <- read.table( snakemake@input[["metadat"]], sep = "\t", header = T) %>% filter( Unique.ID %in% genoPCs$V1) 
 
-genoPCs <- genoPCs[ , c( ncol( genoPCs), 3:finalCol)]
+genoPCs <- cbind( 1, genoPCs[ , c( ncol( genoPCs), 3:finalCol)])
 
 # add the additional covariates to the PCs
 nCov <- ncol( THGPmeta) - 1 # Unique.ID column
