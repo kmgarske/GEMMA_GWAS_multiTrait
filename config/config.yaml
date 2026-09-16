@@ -15,5 +15,5 @@ GENO_PCnum: 5
 
 # plink filtering parameters for final genotype files
 MAF: 0.05 # the minor allele frequency threshold for your analysis
-geno: 0.5 # the missingness allowed for genotypes
-mind: 0.95 # the minimum genotype call rate for individuals
+geno: 0.05 # the missingness allowed for genotypes
+mind: 0.05 # the minimum genotype call rate for individuals
