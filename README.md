@@ -79,8 +79,8 @@ GENO_PCnum:   5    # number of genotype PCs to include as covariates
 # Variables you *might* need to change
 ##############################
 MAF:  0.05   # minor allele frequency threshold
-geno: 0.5    # max per-SNP missingness
-mind: 0.95   # minimum per-individual call rate
+geno: 0.05    # max per-SNP missingness
+mind: 0.05   # minimum per-individual call rate
 ```
 
 > **Note:** `workflow/Snakefile` reads its config via `configfile: "path/to/config.yaml"`. Update this line to point at your config (e.g. `config/config.yaml`) before running.
