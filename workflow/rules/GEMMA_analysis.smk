@@ -1,5 +1,4 @@
 rule get_GEMMA_files:
-    group: "get_plink"
     input: 
         finalDat = "results/{trait}/{trait}_genoOverlap.tsv",
         finalFam = "results/final_geno.fam",
@@ -10,10 +9,14 @@ rule get_GEMMA_files:
         traitBed = temp("results/{trait}/{trait}.bed"),
         traitBim = temp("results/{trait}/{trait}.bim")
     shell:
-        """
+        r"""
+        set -euo pipefail
         cat {input.finalDat} | paste {input.finalFam} - -d' ' | cut -f1-5,7 -d ' ' > {output.traitFam}
-        cp {input.finalBed} {output.traitBed}
-        cp {input.finalBim} {output.traitBim}
+
+        # symlink the shared genotypes instead of copying them for every trait
+        # (absolute targets so the links resolve from inside results/{wildcards.trait}/)
+        ln -sf "$(realpath {input.finalBed})" {output.traitBed}
+        ln -sf "$(realpath {input.finalBim})" {output.traitBim}
         """
 
 rule run_ME:
@@ -35,7 +38,7 @@ rule run_ME:
 
         gemma \
             -bfile results/{wildcards.trait}/{wildcards.trait} \
-            -k results/{wildcards.trait}/nochr${{thisChr}}_GRM.sXX.txt \
+            -k {input.LOCOgrms} \
             -c {input.fullCov} \
             -snps {input.SNPlist} \
             -miss 1.0 -lmm 4 \

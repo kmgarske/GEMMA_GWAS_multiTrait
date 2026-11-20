@@ -47,8 +47,12 @@ PLINK binary format (`.bed`, `.bim`, `.fam`). Sample IDs in the `.fam` file shou
 
 Tab-delimited matrix of normalized trait values with **traits in rows** and **samples in columns**:
 
-- The header row is the sample IDs; the first column header is `Unique.ID`.
-- Each subsequent row is one trait, identified by its row label (this label becomes the `{trait}` wildcard and the output sub-directory name).
+- The header row is the sample IDs. It may either:
+  - contain **only** the sample IDs (one fewer field than the data rows) — this is what R's `write.table( traitMat, sep = "\t", quote = F)` writes by default with `row.names = TRUE`; or
+  - start with a name for the row-label column (any name, e.g. `trait` or `Unique.ID`), followed by the sample IDs — this is what `fwrite` or `write.table( …, col.names = NA)` writes.
+
+  The pipeline works out which layout it is from the field counts; any other mismatch between the header and a trait row stops that trait with an error.
+- Each subsequent row is one trait, identified by its row label in the first column (this label becomes the `{trait}` wildcard and the output sub-directory name). Row labels must be unique.
 - Values are normalized trait values. Use exactly `NA` or blank (`""` in R) for missing / incorrect / extreme-outlier values.
 
 > **Minimum sample size:** Each trait must have at least **500 non-NA values** among the genotyped samples. Traits below this threshold are skipped automatically and a `results/{trait}/{trait}_SKIPPED.log` file is written explaining why (see `workflow/scripts/orderTrait_byGeno.R`).
@@ -60,7 +64,9 @@ Tab-delimited file of covariates to include in the model:
 - Column 1: `Unique.ID` — must match IDs in the genotype and trait files.
 - Columns 2+: one column per covariate (e.g., `Age`, `Sex`). Column names can be anything; all columns after `Unique.ID` are included as covariates.
 
-Genotype PCs are added to these covariates automatically (the number is set by `GENO_PCnum` in the config).
+Genotype PCs and an intercept column are added to these covariates automatically (the number of PCs is set by `GENO_PCnum` in the config). Do not include an intercept column yourself. Covariates must be numeric (e.g. code Sex as 0/1). The covariate file may have no columns besides `Unique.ID`, in which case only the intercept and PCs are used.
+
+> **Complete cases:** genotyped samples that are missing the trait or any covariate are written as `NA`, and GEMMA leaves them out of that trait's analysis. Note that the 500-sample minimum above counts non-NA trait values only, so the number of samples analyzed can be slightly lower.
 
 ## Configuration
 
@@ -107,7 +113,7 @@ A ready-to-use SLURM profile is provided in `profiles/slurm/`:
 snakemake --snakefile workflow/Snakefile --workflow-profile profiles/slurm
 ```
 
-The profile sets per-rule memory/runtime resources, enables `--use-conda`, allows up to 1000 jobs, retries failed jobs twice, and groups the lightweight setup rules (`get_PCs`, `get_cov`, `get_plink`) to reduce job overhead.
+The profile sets per-rule memory/runtime resources, enables `--use-conda`, allows up to 1000 jobs, and retries failed jobs twice.
 
 ## Workflow Steps
 
@@ -117,10 +123,10 @@ The profile sets per-rule memory/runtime resources, enables `--use-conda`, allow
 | `plink_filter_overlap` | Applies MAF/`geno`/`mind` filters and produces filtered and LD-pruned genotype sets |
 | `order_traits` | Orders the trait vector to match the genotype `.fam` ordering and enforces the 500-sample minimum (`orderTrait_byGeno.R`) |
 | `get_geno_PCs` | Runs `plink --pca` on the pruned genotypes |
-| `get_final_cov` | Combines genotype PCs with user covariates into the GEMMA covariate matrix (`getFinalCovs.R`) |
+| `get_final_cov` | Combines an intercept, genotype PCs, and user covariates into the GEMMA covariate matrix, in `.fam` order (`getFinalCovs.R`) |
 | `get_LOCO_GRMs` | Builds one standardized kinship matrix per chromosome, each excluding that chromosome |
 | `get_SNP_lists` | Splits SNP IDs into per-chromosome lists |
-| `get_GEMMA_files` | Assembles per-trait PLINK files with the phenotype written into the `.fam` |
+| `get_GEMMA_files` | Writes a per-trait `.fam` with the phenotype in column 6, and symlinks the shared filtered `.bed`/`.bim` (no per-trait copies) |
 | `run_ME` | Runs `gemma -lmm 4` per trait per chromosome using the matching LOCO kinship matrix, covariates, and SNP list |
 
 ## Output Files
@@ -164,6 +170,8 @@ Each chromosome's GRM is computed as a separate job for parallelization.
 ## Troubleshooting
 
 **Sample ID mismatches.** Ensure `Unique.ID` values are consistent across the trait matrix header, the covariate file's first column, and the genotype `.fam` IDs.
+
+**`get_trait_file` errors.** "header has N fields but row X has M" means the trait matrix header is neither the sample IDs alone nor a row-label name plus the sample IDs (check for stray tabs or a truncated row). "found in K rows" means the trait label is missing or duplicated in the first column.
 
 **Trait skipped / pipeline stops for a trait.** A trait with fewer than 500 non-NA genotyped samples is intentionally skipped; check the corresponding `_SKIPPED.log`.
 

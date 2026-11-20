@@ -48,14 +48,33 @@ checkpoint get_trait_file:
         "envs/allEnv.yml"
     shell:
         r"""
+        set -euo pipefail
         mkdir -p results/{wildcards.trait}
-        : > {output.traitFile}
 
-        sed -n '1p' {input.traitData} | tr "\t" "\n" > results/{wildcards.trait}/er1
-        echo -e 'Unique.ID' | cat - results/{wildcards.trait}/er1 > results/{wildcards.trait}/er2
-
-        grep -w {wildcards.trait} {input.traitData} | \
-        tr "\t" "\n" | \
-        paste results/{wildcards.trait}/er2 - > {output.traitFile}
-        rm results/{wildcards.trait}/er1 results/{wildcards.trait}/er2
+        # Pull one trait row out of the matrix as a two-column (Unique.ID, value) file.
+        # The header may or may not name the first (row-label) column:
+        #   - same number of fields as data rows -> first header field is a row-label name; skip it
+        #   - one fewer field than data rows     -> header is sample IDs only (R write.table default)
+        # The trait row is matched exactly on its first field, and must appear exactly once.
+        awk -F'\t' -v trait="{wildcards.trait}" '
+            NR == 1 {{ nh = NF; for ( i = 1; i <= NF; i++) h[ i] = $i; next }}
+            $1 == trait {{
+                found++
+                if ( nh == NF) {{ off = 0 }}
+                else if ( nh == NF - 1) {{ off = 1 }}
+                else {{
+                    printf "ERROR: header has %d fields but row %s has %d\n", nh, trait, NF > "/dev/stderr"
+                    bad = 1; exit 1
+                }}
+                print "Unique.ID\t" trait
+                for ( i = 2; i <= NF; i++) print h[ i - off] "\t" $i
+            }}
+            END {{
+                if ( bad) exit 1
+                if ( found != 1) {{
+                    printf "ERROR: trait %s found in %d rows (expected exactly 1)\n", trait, found > "/dev/stderr"
+                    exit 1
+                }}
+            }}
+        ' {input.traitData} > {output.traitFile}
         """
