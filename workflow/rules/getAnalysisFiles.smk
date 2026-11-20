@@ -52,7 +52,6 @@ rule get_LOCO_GRMs:
         """
 
 rule get_geno_PCs:
-    group: "get_PCs"
     input:
         bed="results/final_geno_pruned.bed",
         bim="results/final_geno_pruned.bim",
@@ -68,7 +67,6 @@ rule get_geno_PCs:
         "plink --bfile results/final_geno_pruned --pca --out results/final_geno_PCA"  
 
 rule get_final_cov:
-    group: "get_cov"
     input: 
         genoPCs = "results/final_geno_PCA.eigenvec",
         genoIDs = "results/final_geno.fam",
